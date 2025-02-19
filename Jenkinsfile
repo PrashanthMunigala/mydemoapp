@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('git clone') {
             steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/PrashanthMunigala/ultimate-devops-project-aws.git']])
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/PrashanthMunigala/mydemoapp.git']])
             }
         }
         stage('build backend') {
