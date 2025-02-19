@@ -11,22 +11,17 @@ pipeline {
         }
         stage('build backend') {
             steps {
-                dir('eksinstall/backend') {
                     sh 'terraform init'
                 }
-            }
         }
         stage('backend terraform apply or destroy') {
             steps {
                 script {
                     if (params.ACTION == 'apply') {
-                        dir('eksinstall/backend') {
                             sh 'terraform apply'
-                        }
-                    } else if (params.ACTION == 'destroy') {
-                        dir('eksinstall/backend') {
+                    } 
+                    else if (params.ACTION == 'destroy') {
                             sh 'terraform destroy'
-                        }
                     }
                 }
             }
