@@ -14,6 +14,11 @@ pipeline {
                     sh 'terraform init'
                 }
         }
+         stage('build backend plan') {
+            steps {
+                    sh 'terraform plan'
+                }
+        }
         stage('backend terraform apply or destroy') {
             steps {
                 script {
