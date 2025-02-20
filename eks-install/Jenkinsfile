@@ -15,7 +15,9 @@ pipeline {
         }
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                dir('eks-install') {
+                    sh 'terraform init'
+                }
             }
         }
         stage('Terraform Plan') {
@@ -23,12 +25,16 @@ pipeline {
                 expression { return params.ACTION == 'plan' }
             }
             steps {
-                sh 'terraform plan'
+                dir('eks-install') {
+                    sh 'terraform plan'
+                }
             }
         }
         stage('Terraform Validate') {
             steps {
-                sh 'terraform validate'
+                dir('eks-install') {
+                    sh 'terraform validate'
+                }
             }
         }
         stage('Terraform Apply') {
@@ -36,7 +42,9 @@ pipeline {
                 expression { return params.ACTION == 'apply' }
             }
             steps {
-                sh 'terraform apply -auto-approve'
+                dir('eks-install') {
+                    sh 'terraform apply -auto-approve'
+                }
             }
         }
         stage('Terraform Destroy') {
@@ -44,7 +52,9 @@ pipeline {
                 expression { return params.ACTION == 'destroy' }
             }
             steps {
-                sh 'terraform destroy -auto-approve'
+                dir('eks-install') {
+                    sh 'terraform destroy -auto-approve'
+                }
             }
         }
     }
