@@ -1,105 +1,59 @@
 pipeline {
     agent any
-
     parameters {
-        choice(name: 'ACTION', choices: ['plan', 'apply', 'destroy'], description: 'Choose the Terraform action to perform')
+        choice(name: 'ACTION', choices: ['plan', 'apply', 'destroy'], description: 'Select the action')
     }
-
     stages {
-        stage('Initialize VPC') {
+        stage('Git Clone') {
             steps {
-                dir('eks-install/modules/vpc') {
-                    script {
-                        sh "terraform init"
-                    }
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/main']],
+                          extensions: [],
+                          userRemoteConfigs: [[url: 'https://github.com/PrashanthMunigala/mydemoapp.git']]
+                ])
+            }
+        }
+        stage('Terraform Init') {
+            steps {
+                dir('eks-install') {
+                    sh 'terraform init'
                 }
             }
         }
-
-        stage('Plan VPC') {
+        stage('Terraform Plan') {
             when {
-                expression { params.ACTION == 'plan' }
+                expression { return params.ACTION == 'plan' }
             }
             steps {
-                dir('eks-install/modules/vpc') {
-                    script {
-                        sh "terraform plan -var-file=../../../variables.tf"
-                    }
+                dir('eks-install') {
+                    sh 'terraform plan'
                 }
             }
         }
-
-        stage('Apply VPC') {
+        stage('Terraform Validate') {
+            steps {
+                dir('eks-install') {
+                    sh 'terraform validate'
+                }
+            }
+        }
+        stage('Terraform Apply') {
             when {
-                expression { params.ACTION == 'apply' }
+                expression { return params.ACTION == 'apply' }
             }
             steps {
-                dir('eks-install/modules/vpc') {
-                    script {
-                        sh "terraform apply -auto-approve -var-file=../../../variables.tf"
-                    }
+                dir('eks-install') {
+                    sh 'terraform apply -auto-approve'
                 }
             }
         }
-
-        stage('Destroy VPC') {
+        stage('Terraform Destroy') {
             when {
-                expression { params.ACTION == 'destroy' }
+                expression { return params.ACTION == 'destroy' }
             }
             steps {
-                dir('eks-install/modules/vpc') {
-                    script {
-                        sh "terraform destroy -auto-approve -var-file=../../../variables.tf"
-                    }
-                }
-            }
-        }
-
-        stage('Initialize EKS') {
-            steps {
-                dir('eks-install/modules/eks') {
-                    script {
-                        sh "terraform init"
-                    }
-                }
-            }
-        }
-
-        stage('Plan EKS') {
-            when {
-                expression { params.ACTION == 'plan' }
-            }
-            steps {
-                dir('eks-install/modules/eks') {
-                    script {
-                        sh "terraform plan -var-file=../../../variables.tf"
-                    }
-                }
-            }
-        }
-
-        stage('Apply EKS') {
-            when {
-                expression { params.ACTION == 'apply' }
-            }
-            steps {
-                dir('eks-install/modules/eks') {
-                    script {
-                        sh "terraform apply -auto-approve -var-file=../../../variables.tf"
-                    }
-                }
-            }
-        }
-
-        stage('Destroy EKS') {
-            when {
-                expression { params.ACTION == 'destroy' }
-            }
-            steps {
-                dir('eks-install/modules/eks') {
-                    script {
-                        sh "terraform destroy -auto-approve -var-file=../../../variables.tf"
-                    }
+                dir('eks-install') {
+                    sh 'terraform destroy -auto-approve'
                 }
             }
         }
