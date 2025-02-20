@@ -28,10 +28,10 @@ pipeline {
             steps {
                 script {
                     if (params.ACTION == 'apply') {
-                            sh 'terraform apply'
+                            sh 'terraform apply -auto-approve'
                     } 
                     else if (params.ACTION == 'destroy') {
-                            sh 'terraform destroy'
+                            sh 'terraform destroy -auto-approve'
                     }
                 }
             }
