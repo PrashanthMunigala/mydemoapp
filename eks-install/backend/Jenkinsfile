@@ -1,28 +1,59 @@
 pipeline {
     agent any
     parameters {
-        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select the action')
+        choice(name: 'ACTION', choices: ['plan', 'apply', 'destroy'], description: 'select the action')
     }
     stages {
-        stage('git clone') {
+        stage('Git Clone') {
             steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/PrashanthMunigala/mydemoapp.git']])
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/main']],
+                          extensions: [],
+                          userRemoteConfigs: [[url: 'https://github.com/PrashanthMunigala/mydemoapp.git']]
+                ])
             }
         }
-        stage('build backend') {
+        stage('Terraform Init') {
             steps {
+                dir('eks-install/backend') {
                     sh 'terraform init'
                 }
+            }
         }
-        stage('backend terraform apply or destroy') {
+        stage('Terraform Plan') {
+            when {
+                expression { return params.ACTION == 'plan' }
+            }
             steps {
-                script {
-                    if (params.ACTION == 'apply') {
-                            sh 'terraform apply'
-                    } 
-                    else if (params.ACTION == 'destroy') {
-                            sh 'terraform destroy'
-                    }
+                dir('eks-install/backend') {
+                    sh 'terraform plan'
+                }
+            }
+        }
+        stage('Terraform Validate') {
+            steps {
+                dir('eks-install/backend') {
+                    sh 'terraform validate'
+                }
+            }
+        }
+        stage('Terraform Apply') {
+            when {
+                expression { return params.ACTION == 'apply' }
+            }
+            steps {
+                dir('eks-install/backend') {
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+        stage('Terraform Destroy') {
+            when {
+                expression { return params.ACTION == 'destroy' }
+            }
+            steps {
+                dir('eks-install/backend') {
+                    sh 'terraform destroy -auto-approve'
                 }
             }
         }
