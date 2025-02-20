@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Terraform Init') {
             steps {
-                dir("eks-install/modules/eks", "eks-install/modules/eks") {
+                dir('eks-install/modules/eks') {
                     sh 'terraform init'
                 }
             }
