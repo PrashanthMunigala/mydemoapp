@@ -1,59 +1,85 @@
 pipeline {
     agent any
+
     parameters {
-        choice(name: 'ACTION', choices: ['plan', 'apply', 'destroy'], description: 'select the action')
+        choice(name: 'ACTION', choices: ['plan', 'apply', 'destroy'], description: 'Choose the Terraform action to perform')
     }
+
     stages {
-        stage('Git Clone') {
-            steps {
-                checkout([$class: 'GitSCM',
-                          branches: [[name: '*/main']],
-                          extensions: [],
-                          userRemoteConfigs: [[url: 'https://github.com/PrashanthMunigala/mydemoapp.git']]
-                ])
-            }
-        }
-        stage('Terraform Init') {
-            steps {
-                dir('eks-install/modules/eks') {
-                    sh 'terraform init'
-                }
-            }
-        }
-        stage('Terraform Plan') {
+        stage('Plan VPC') {
             when {
-                expression { return params.ACTION == 'plan' }
+                expression { params.ACTION == 'plan' }
             }
             steps {
-                dir('eks-install/modules') {
-                    sh 'terraform plan'
+                dir('eks-install/modules/vpc') {
+                    script {
+                        sh "terraform plan"
+                    }
                 }
             }
         }
-        stage('Terraform Validate') {
-            steps {
-                dir('eks-install/modules/eks') {
-                    sh 'terraform validate'
-                }
-            }
-        }
-        stage('Terraform Apply') {
+
+        stage('Apply VPC') {
             when {
-                expression { return params.ACTION == 'apply' }
+                expression { params.ACTION == 'apply' }
             }
             steps {
-                dir('eks-install/modules/eks') {
-                    sh 'terraform apply -auto-approve'
+                dir('eks-install/modules/vpc') {
+                    script {
+                        sh "terraform apply -auto-approve"
+                    }
                 }
             }
         }
-        stage('Terraform Destroy') {
+
+        stage('Destroy VPC') {
             when {
-                expression { return params.ACTION == 'destroy' }
+                expression { params.ACTION == 'destroy' }
+            }
+            steps {
+                dir('eks-install/modules/vpc') {
+                    script {
+                        sh "terraform destroy -auto-approve"
+                    }
+                }
+            }
+        }
+
+        stage('Plan EKS') {
+            when {
+                expression { params.ACTION == 'plan' }
             }
             steps {
                 dir('eks-install/modules/eks') {
-                    sh 'terraform destroy -auto-approve'
+                    script {
+                        sh "terraform plan"
+                    }
+                }
+            }
+        }
+
+        stage('Apply EKS') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
+            steps {
+                dir('eks-install/modules/eks') {
+                    script {
+                        sh "terraform apply -auto-approve"
+                    }
+                }
+            }
+        }
+
+        stage('Destroy EKS') {
+            when {
+                expression { params.ACTION == 'destroy' }
+            }
+            steps {
+                dir('eks-install/modules/eks') {
+                    script {
+                        sh "terraform destroy -auto-approve"
+                    }
                 }
             }
         }
