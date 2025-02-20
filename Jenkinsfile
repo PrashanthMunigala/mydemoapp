@@ -2,12 +2,7 @@ pipeline {
     agent any
     parameters {
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select the action')
-    }
-    environment {
-        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials ('AWS_SECRET_ACCESS_KEY')
 
-    }
     stages {
         stage('git clone') {
             steps {
