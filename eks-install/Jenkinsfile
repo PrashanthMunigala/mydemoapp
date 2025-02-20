@@ -7,15 +7,12 @@ pipeline{
         stage('git clone') { 
             steps {
                 checkout scmGit(branches: [[name: '*/main]], extensions: [], userRemoteConfigs: [['url: 'https://github.com/PrashanthMunigala/mydemoapp.git']])
-            } 
+                } 
             }
         }
         stage('Terraform init') {
            steps {
-              dir('eks-install') {
-                 sh 'terraform init'
-              }
-
+                 sh 'terraform init' 
            }
         }
         stage('terraform plan') {
@@ -23,26 +20,20 @@ pipeline{
                 expression { return params.ACTION == 'plan' }
             }
             steps {
-                dir('eks-install') {
                     sh 'terraform plan'
-                }
             }
         }
         stage('terraform validate') {
             steps {
-                dir('eks-install') {
                     sh 'terraform validate'
-                }
             }
         }
         stage('Terraform apply') {
             when {
                 expression { return params.ACTION == 'apply' }
             }
-            steps {
-                dir ('eks-install') {
+            steps { 
                   sh 'terraform apply -auto-approve'
-                }
             }
         }
         stage('terraform destroy') {
@@ -50,10 +41,7 @@ pipeline{
                 expression { return params.ACTION == 'destroy' }
             }
             steps {
-                dir ('eks-install') {
                     sh 'terraform destroy -auto-approve'
-                }
             }
         }
-
 }
