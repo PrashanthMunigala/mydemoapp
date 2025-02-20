@@ -1,8 +1,8 @@
-pipeline{
+pipeline {
     agent any
-     parameters {
-       choice(name: 'ACTION', choices: ['plan', 'apply', 'destroy'], description: 'select the action') 
-     }
+    parameters {
+        choice(name: 'ACTION', choices: ['plan', 'apply', 'destroy'], description: 'select the action')
+    }
     stages {
         stage('Git Clone') {
             steps {
@@ -13,38 +13,48 @@ pipeline{
                 ])
             }
         }
-        stage('Terraform init') {
-           steps {
-                 sh 'terraform init' 
-           }
+        stage('Terraform Init') {
+            steps {
+                dir('eks-install/modules') {
+                    sh 'terraform init'
+                }
+            }
         }
-        stage('terraform plan') {
+        stage('Terraform Plan') {
             when {
                 expression { return params.ACTION == 'plan' }
             }
             steps {
+                dir('eks-install/modules') {
                     sh 'terraform plan'
+                }
             }
         }
-        stage('terraform validate') {
+        stage('Terraform Validate') {
             steps {
+                dir('eks-install/modules') {
                     sh 'terraform validate'
+                }
             }
         }
-        stage('Terraform apply') {
+        stage('Terraform Apply') {
             when {
                 expression { return params.ACTION == 'apply' }
             }
-            steps { 
-                  sh 'terraform apply -auto-approve'
+            steps {
+                dir('eks-install/modules') {
+                    sh 'terraform apply -auto-approve'
+                }
             }
         }
-        stage('terraform destroy') {
+        stage('Terraform Destroy') {
             when {
                 expression { return params.ACTION == 'destroy' }
             }
             steps {
+                dir('eks-install/modules') {
                     sh 'terraform destroy -auto-approve'
+                }
             }
         }
     }
