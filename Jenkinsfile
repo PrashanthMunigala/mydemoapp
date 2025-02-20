@@ -2,7 +2,7 @@ pipeline {
     agent any
     parameters {
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select the action')
-
+    }
     stages {
         stage('git clone') {
             steps {
