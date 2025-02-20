@@ -20,7 +20,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source = "eks-install/modules/vpc"
+  source = "../modules/vpc"  # Corrected relative path
 
   vpc_cidr             = var.vpc_cidr
   availability_zones   = var.availability_zones
@@ -30,7 +30,7 @@ module "vpc" {
 }
 
 module "eks" {
-  source = "eks-install/modules/eks"
+  source = "../modules/eks"  # Corrected relative path
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
