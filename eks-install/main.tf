@@ -20,7 +20,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source = "mydemoapp/eks-install/modules/vpc"  # Corrected relative path
+  source = "./modules/vpc"  # Adjusted for relative path within the repo
 
   vpc_cidr             = var.vpc_cidr
   availability_zones   = var.availability_zones
@@ -30,7 +30,7 @@ module "vpc" {
 }
 
 module "eks" {
-  source = "mydemoapp/eks-install/modules/eks"  # Corrected relative path
+  source = "./modules/eks"  # Adjusted for relative path within the repo
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
