@@ -6,6 +6,16 @@ pipeline {
     }
 
     stages {
+        stage('Initialize VPC') {
+            steps {
+                dir('eks-install/modules/vpc') {
+                    script {
+                        sh "terraform init"
+                    }
+                }
+            }
+        }
+
         stage('Plan VPC') {
             when {
                 expression { params.ACTION == 'plan' }
@@ -40,6 +50,16 @@ pipeline {
                 dir('eks-install/modules/vpc') {
                     script {
                         sh "terraform destroy -auto-approve"
+                    }
+                }
+            }
+        }
+
+        stage('Initialize EKS') {
+            steps {
+                dir('eks-install/modules/eks') {
+                    script {
+                        sh "terraform init"
                     }
                 }
             }
