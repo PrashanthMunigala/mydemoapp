@@ -32,7 +32,7 @@ pipeline {
         }
         stage('Terraform Validate') {
             steps {
-                dir('eks-install/modules') {
+                dir('eks-install/modules/eks') {
                     sh 'terraform validate'
                 }
             }
@@ -42,7 +42,7 @@ pipeline {
                 expression { return params.ACTION == 'apply' }
             }
             steps {
-                dir('eks-install/modules') {
+                dir('eks-install/modules/eks') {
                     sh 'terraform apply -auto-approve'
                 }
             }
@@ -52,7 +52,7 @@ pipeline {
                 expression { return params.ACTION == 'destroy' }
             }
             steps {
-                dir('eks-install/modules') {
+                dir('eks-install/modules/eks') {
                     sh 'terraform destroy -auto-approve'
                 }
             }
